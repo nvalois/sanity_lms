@@ -27,18 +27,23 @@ export const CourseCard = ({
   category,
   purchase
 }: CourseCardProps) => {
-
-
   return (
     <Link href={`/courses/${_id}`}>
       <div className="group hover:shadow-sm transition overflow-hidden border rounded-lg p-3 h-full">
         <div className="relative w-full aspect-video rounded-md overflow-hidden">
-          <Image
-            fill
-            className="object-cover"
-            alt={title}
-            src={imageUrl}
-          />
+          {imageUrl ? (
+            <Image
+              fill
+              className="object-cover"
+              alt={title}
+              src={imageUrl}
+              unoptimized
+            />
+          ) : (
+            <div className="w-full h-full bg-slate-200 flex items-center justify-center">
+              <BookOpen className="h-10 w-10 text-slate-400" />
+            </div>
+          )}
         </div>
         <div className="flex flex-col pt-2">
           <div className="text-lg md:text-base font-medium group-hover:text-indigo-700 transition line-clamp-2">

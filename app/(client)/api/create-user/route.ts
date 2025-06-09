@@ -5,14 +5,14 @@ import { currentUser } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 
 export const GET = async (req: Request) => {
-    
   const user = await currentUser();
+
   if (!user) {
-    return NextResponse.redirect("/sign-in");
+    return new NextResponse("Unauthorized", { status: 401 });
   }
 
-	const {id, firstName, lastName, emailAddresses} = user;
-  
+  const { id, firstName, lastName, emailAddresses } = user;
+
   await sanityClient.createIfNotExists({
     _type: "user",
     isTeacher: false,
@@ -22,5 +22,5 @@ export const GET = async (req: Request) => {
     email: emailAddresses[0].emailAddress
   })
 
-  return NextResponse.redirect('/');
+  return new NextResponse("User created", { status: 200 });
 };

@@ -5,20 +5,20 @@ import { Course, Category, Attachment, Chapter, MuxData, UserProgress, purchase 
 
 
 export async function getCourse(courseId: string) {
-    const result = await sanityClient.fetch<Course>(
-      queries.getCourse,
-      { courseId },
-      { cache: 'no-cache' }
-    );
-  
+  const result = await sanityClient.fetch<Course>(
+    queries.getCourse,
+    { courseId },
+    { cache: 'no-cache' }
+  );
+
   return result;
 }
 
 export async function getUserCourse(courseId: string, userId: string) {
   const result = await sanityClient.fetch<Course>(
     queries.getUserCourse,
-    {courseId, userId},
-    { cache: 'no-cache'}
+    { courseId, userId },
+    { cache: 'no-cache' }
   )
 
   return result;
@@ -27,39 +27,59 @@ export async function getUserCourse(courseId: string, userId: string) {
 export async function getEnrolledCourse(courseId: string, userId: string) {
   const result = await sanityClient.fetch<Course>(
     queries.enrolledUserCourse,
-    {courseId, userId},
-    { cache: 'no-cache'}
+    { courseId, userId },
+    { cache: 'no-cache' }
   )
 
   return result;
 }
 
-export async function getStudentCourses( userId: string) {
+export async function getStudentCourses(userId: string) {
   const result = await sanityClient.fetch<Course[]>(
     queries.getStudentCourse,
-    {userId},
-    { cache: 'no-cache'}
+    { userId },
+    { cache: 'no-cache' }
   )
 
   return result;
 }
 
-export async function getSearchCourses( userId: string) {
-  const result = await sanityClient.fetch<Course>(
-    queries.getStudentCourse,
-    {userId},
-    { cache: 'no-cache'}
-  )
+export async function getSearchCourses(userId: string, title?: string, categoryId?: string) {
+  const query = `*[_type == "course" && isPublished == true ${title ? `&& title match "*${title}*"` : ""
+    } ${categoryId ? `&& categoryId._ref == "${categoryId}"` : ""
+    }] {
+    _id,
+    title,
+    description,
+    "imageUrl": coalesce(imageUrl, ""),
+    price,
+    "category": categoryId->{
+      _id,
+      name
+    },
+    chapters[] {
+      _id
+    },
+    purchases[] {
+      _id
+    }
+  }`;
+
+  const result = await sanityClient.fetch<Course[]>(
+    query,
+    {},
+    { cache: 'no-cache' }
+  );
 
   return result;
 }
 
 
-export async function getPubStudentCourses( userId: string) {
+export async function getPubStudentCourses(userId: string) {
   const result = await sanityClient.fetch<Course>(
     queries.pubStudentCourse,
-    {userId},
-    { cache: 'no-cache'}
+    { userId },
+    { cache: 'no-cache' }
   )
 
   return result;
@@ -68,8 +88,8 @@ export async function getPubStudentCourses( userId: string) {
 export async function getPublishedCourses(categoryId: string, userId: string, title: string) {
   const result = await sanityClient.fetch<Course>(
     queries.publishedCoursesQuery,
-    {title, categoryId, userId},
-    {cache: 'no-cache'}
+    { title, categoryId, userId },
+    { cache: 'force-cache' }
   )
 
   return result;
@@ -78,8 +98,8 @@ export async function getPublishedCourses(categoryId: string, userId: string, ti
 export async function getPubStudentCourse(userId: string, categoryId: string, title: string) {
   const result = await sanityClient.fetch<Course>(
     queries.PubStudentCourse_q,
-    {userId},
-    {cache: 'no-cache'}
+    { userId },
+    { cache: 'no-cache' }
   )
   return result;
 }
@@ -87,8 +107,8 @@ export async function getPubStudentCourse(userId: string, categoryId: string, ti
 export async function getPublishedChapters(courseId: string) {
   const result = await sanityClient.fetch<Chapter>(
     queries.publishedChaptersQuery,
-    {courseId},
-    {cache: 'no-cache'}
+    { courseId },
+    { cache: 'no-cache' }
   )
 
   return result;
@@ -97,28 +117,28 @@ export async function getPublishedChapters(courseId: string) {
 export async function getCompletedChapterProgress(userId: string, publishedChapterIds: string) {
   const result = await sanityClient.fetch<UserProgress>(
     queries.completedChaptProgQuery,
-    {userId, publishedChapterIds},
-    {cache: 'no-cache'}
+    { userId, publishedChapterIds },
+    { cache: 'no-cache' }
   );
 
   return result
 }
 
 export async function getCourseCategories() {
-  const result = await sanityClient.fetch<Category>(
+  const result = await sanityClient.fetch<Category[]>(
     queries.getCourseCategories,
     {},
-    { cache: 'no-cache' }
+    { cache: 'force-cache' }
   );
 
   return result;
-} 
+}
 
 export async function getCourseAttachments(courseId: string) {
   const result = await sanityClient.fetch<Attachment>(
     queries.AllCourseAttachments,
-    {courseId},
-    {cache: 'no-cache'}
+    { courseId },
+    { cache: 'no-cache' }
   )
 
   return result;
@@ -127,18 +147,18 @@ export async function getCourseAttachments(courseId: string) {
 export async function getCourseChapters(courseId: string) {
   const result = await sanityClient.fetch<Chapter>(
     queries.AllCourseChapters,
-    {courseId},
-    {cache: 'no-cache'}
+    { courseId },
+    { cache: 'no-cache' }
   )
 
   return result;
 }
 
-export async function getCourseAttachment (url: string) {
+export async function getCourseAttachment(url: string) {
   const result = await sanityClient.fetch<Attachment>(
     queries.getCourseAttachment,
-    {url},
-    {cache: 'no-cache'}
+    { url },
+    { cache: 'no-cache' }
   )
 
   return result;
@@ -206,21 +226,21 @@ export async function deleteCourseAttachment(courseId: string, attachmentIdToDel
   }
 }
 
-export async function getCourseChapt (courseId: string) {
+export async function getCourseChapt(courseId: string) {
   const result = await sanityClient.fetch<Chapter>(
     queries.getCourseChapt,
-    {courseId},
-    {cache: 'no-cache'}
+    { courseId },
+    { cache: 'no-cache' }
   )
 
   return result;
 }
 
-export async function getPubCourseChapt (courseId: string) {
+export async function getPubCourseChapt(courseId: string) {
   const result = await sanityClient.fetch<Chapter>(
     queries.pubCourseChapt,
-    {courseId},
-    {cache: 'no-cache'}
+    { courseId },
+    { cache: 'no-cache' }
   )
 
   return result;
@@ -254,21 +274,21 @@ export async function updateCourseChapter(courseId: string, chapterId: string) {
   }
 }
 
-export async function getChapter (courseId: string, chapterId: string) {
+export async function getChapter(courseId: string, chapterId: string) {
   const result = await sanityClient.fetch<Chapter>(
     queries.getChapter,
     { courseId, chapterId },
     { cache: 'no-cache' }
   );
 
-return result;
+  return result;
 }
 
-export async function getMuxChapter (chapterId: string) {
+export async function getMuxChapter(chapterId: string) {
   const result = await sanityClient.fetch<MuxData>(
     queries.getMuxChap,
-    {chapterId},
-    {cache: 'no-cache'}
+    { chapterId },
+    { cache: 'no-cache' }
   )
 
   return result;
@@ -308,11 +328,11 @@ export async function deleteCourseChapter(courseId: string, chapterIdToDelete: s
 }
 
 
-export async function getPurchase (courseId: string, userId: string) {
+export async function getPurchase(courseId: string, userId: string) {
   const result = await sanityClient.fetch<purchase>(
     queries.purchaseQry,
-    {courseId, userId},
-    {cache: 'no-cache'}
+    { courseId, userId },
+    { cache: 'no-cache' }
   )
 
   return result;
