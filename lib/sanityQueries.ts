@@ -66,7 +66,7 @@ export const getSearchCourse = groq`*[
 export const enrolledUserCourse = groq`*[
     _type == "course" 
     && _id == $courseId
-     && userId == $userId
+    && isPublished == true
     ][0] {
     _id,
     userId,
@@ -76,10 +76,12 @@ export const enrolledUserCourse = groq`*[
     price,
     isPublished,
     categoryId,
-    chapters,
+    chapters[]->,
     attachments[]->,
-    purchases,
-    
+    purchases[] {
+      _id,
+      userId
+    }
 }`;
 
 export const pubStudentCourse = groq`*[_type == "course" && userId == $userId && isPublished == true] {
@@ -170,7 +172,7 @@ export const AllCourseAttachments = groq`*[_type == "attachment" && courseId._re
     name,
 }`
 
-export const AllCourseChapters = groq`*[_type == "chapter" && courseId == $courseId]{
+export const AllCourseChapters = groq`*[_type == "chapter" && courseId == $courseId && isPublished == true] | order(position asc) {
     _id,
     title,
     description,
@@ -179,8 +181,12 @@ export const AllCourseChapters = groq`*[_type == "chapter" && courseId == $cours
     isPublished,
     isFree,
     muxData[]->,
-    courseId
-
+    courseId,
+    userProgress[] {
+      _id,
+      userId,
+      isCompleted
+    }
 }`
 
 export const getCourseChapt = groq`*[_type == "chapter" && courseId == $courseId] | order(position desc)[0] {
